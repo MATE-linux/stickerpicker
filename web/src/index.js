@@ -31,23 +31,23 @@ if (params.has('config')) {
 }
 
 const makeThumbnailURL = (mxc) => {
-    // Обрабатываем случаи, когда на вход приходит уже готовый URL, а не MXC URI
+    // Обрабатываем случаи, когда на вход приходит уже готовый URL
     if (mxc.startsWith('http://') || mxc.startsWith('https://')) {
         return mxc;
     }
     if (mxc.startsWith('mxc://')) {
-        // Разбираем MXC URI: mxc://сервер/медиаID
+        // Разбираем MXC URI: mxc://СЕРВЕР_МЕДИА/ИДЕНТИФИКАТОР_МЕДИА
         const parts = mxc.substring(6).split('/');
         if (parts.length >= 2) {
-            const server = parts[0];
-            const mediaId = parts[1];
-            // Стандартный эндпоинт Matrix Media API для загрузки миниатюр
-            return `https://${server}/_matrix/media/v3/thumbnail/${server}/${mediaId}?width=320&height=320&method=scale`;
+            const mediaServer = parts[0]; // unredacted.org (сервер, где лежит файл)
+            const mediaId = parts[1];     // Идентификатор файла
+            // Проксируем запрос через ваш Matrix-сервер (matrix.unredacted.org)
+            return `https://matrix.unredacted.org/_matrix/media/v3/thumbnail/${mediaServer}/${mediaId}?width=320&height=320&method=scale`;
         }
     }
-    // Если это не MXC и не URL, возвращаем как есть (fallback)
+    // Fallback
     return mxc;
-}
+};
 
 // We need to detect iOS webkit because it has a bug related to scrolling non-fixed divs
 // This is also used to fix scrolling to sections on Element iOS
